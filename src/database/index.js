@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const uri = 'mongodb+srv://alissonmanfron:mf020911@cluster0-dt4kr.gcp.mongodb.net/noderest?retryWrites=true&w=majority';
+const uri = 'mongodb+srv://alissonmanfron:mf020911@cluster0-dt4kr.gcp.mongodb.net/ecommerce-api?retryWrites=true&w=majority';
 
 mongoose.connect(uri, { useNewUrlParser: true })
   .then(() => console.log('MongoDB connected...'))
