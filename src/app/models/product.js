@@ -11,6 +11,14 @@ const ProductSchema = new mongoose.Schema({
     type: SchemaTypes.Number,
     required: true,
   },
+  imageUrl: {
+    type: String,
+    required: true,
+  },
+  group: {
+    type: String,
+    required: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
