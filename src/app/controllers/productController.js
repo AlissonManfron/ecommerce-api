@@ -12,9 +12,9 @@ router.get('/', async (req,res) => {
     const products = await Product.find();
 
     if (products.length > 0) {
-      return res.send([ { "error": false, "products": products } ]);
+      return res.send( { "error": false, "products": products } );
     } else {
-      return res.send([ { "error": true, "products": products } ]);
+      return res.send( { "error": true, "products": products } );
     }
   } catch(err) {
     return res.status(400).send({ "error": true, "message": 'Error loading Products' + err });
@@ -35,7 +35,6 @@ router.get('/:id', async (req,res) => {
 
 router.get('/search/:group', async (req,res) => {
   try{
-
     query = {};
     if (req.params.group !== undefined) {
         query = {
@@ -60,9 +59,71 @@ router.get('/search/:group', async (req,res) => {
   }
 });
 
+router.get('/group/:limit', async (req,res) => {
+  try{
+    await Product.aggregate([
+      {$sort:{group:1, description:1}},
+      {
+        $group:{
+          _id:"$group",
+          products:{
+            $push:{
+              _id:"$_id", 
+              description:"$description", 
+              price:"$price"
+            }
+          }
+        }
+      }, 
+      {
+        $project:{
+          products:{
+            $slice:["$products", 
+            Number(req.params.limit)
+          ]
+        }
+      }
+    }
+    ], function(err, result) {
+      if (err) throw err;
+      return res.send({ result });
+    });
+
+  } catch(err) {
+    return res.status(400).send({ "error": true, "message": 'Error loading Products' + err });
+  }
+});
+
+router.get('/search/:group/limit/:limit', async (req,res) => {
+  try{
+    query = {};
+    if (req.params.group !== undefined) {
+        query = {
+            group: new RegExp(req.params.group, 'i')
+        };
+    }
+    
+    await Product.find(query, function(err, products) {
+      if (err) {
+        return res.send([ { "error": true, "products": products } ]);
+      } else {
+        if (products.length > 0) {
+          return res.send([ { "error": false, "products": products } ]);
+        } else {
+          return res.send([ { "error": true, "products": products } ]);
+        }
+      }
+    }).limit(Number(req.params.limit));
+
+  } catch(err) {
+    return res.status(400).send({ "error": true, "message": 'Error loading Products' + err });
+  }
+});
+
 router.post('/', async (req,res) => {
   try{
 
+    console.log(req.body);
     const { description, price, imageUrl, group }= req.body;
 
     const product = await Product.create({ description, price, imageUrl, group });
