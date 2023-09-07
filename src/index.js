@@ -16,5 +16,5 @@ app.use('/api/users', userRoutes);
 //app.use('/api/products', product);
 
 app.listen(PORT, () => {
-    console.log("Server on")
+    console.log("Server connected!")
 });
