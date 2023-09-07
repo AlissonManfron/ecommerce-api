@@ -1,74 +1,73 @@
-const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const User = require('../models/user');
-const authConfig = require('../../config/auth');
-const router = express.Router();
+import "dotenv/config"
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+import UserDatabasePostgres from '../../database/user-database-postgres.js'
+
+const { SECRET } = process.env;
+const { compare } = bcrypt;
+const database = new UserDatabasePostgres()
 
 function generateToken(params = { }) {
-  return jwt.sign({ params }, authConfig.secret, {
+  return jwt.sign({ params }, SECRET, {
     expiresIn: 86400,
   });
 }
 
-router.post('/register', async (req,res) => {
-  const {email} = req.body;
+const register = async (req, res) => {
+  const { name, email, password } = req.body
 
   try{
 
-    if (await User.findOne({email}))
-    res.status(400).send({ error: 'User already exists'});
+    if (await database.find(email))
+      return res.status(400).send({ error: 'User already exists'});
 
-    const user = await User.create(req.body);
-    
-    user.password = undefined;
-    
+    await database.create({
+      name,
+      email,
+      password
+    })
+
     return res.send({ 
-      user, 
-      token: generateToken({ id: user.id }),
+      name, 
+      email,
+      token: generateToken({ email: email })
     });
 
   } catch(err) {
-    return res.status(400).send({ error: 'Registration Failed' });
+    return res.status(400).send({ error: 'Registration Failed' })
   }
-})
-.post('/authenticate', async (req,res) => {
-  try{
-    const { email, password } = req.body;
+}
 
-    const user = await User.findOne({email}).select('+password');
+const authenticate = async (req, res) => {
+  try{
+     const { email, password } = req.body
+
+    const { name: userName, email: userEmail, password: userPassword } = await database.find(email)
     
-    if (!user)
+    if (!userName)
       return res.status(400).send({ error: 'User Not Found' });
 
-    if (!await bcrypt.compare(password, user.password))
+    if (!await compare(password, userPassword))
       return res.status(400).send({ error: 'Invalid Password' });
-      
-    user.password = undefined;
 
     return res.send({ 
-      user, 
-      token:  generateToken({ id: user.id }),
+      name: userName, 
+      email: userEmail,
+      token: generateToken({ email: email })
     });
   } catch(err) {
-    return res.status(400).send({ error: 'Authenticate Failed: ' + err });
+    return res.status(400).send({ error: 'Authenticate Failed: ' + err })
   }
-})
-.get('/users', async  (req,res) => {
-  try{
-    const users = await User.find();
-    return res.send({ users });
-  } catch(err) {
-    return res.status(400).send({ error: 'Registration Failed' + err });
-  }
-})
-.delete('/users', async  (req,res) => {
-  try{
-    const users = await User.remove();
-    return res.send({ users });
-  } catch(err) {
-    return res.status(400).send({ error: 'Delete Failed' + err });
-  }
-});
+}
 
-module.exports = app => app.use('/auth', router);
+const getAll = async  (req, res) => {
+  try{
+    const users = await database.getAll()
+    
+    return res.send({ "users": users })
+  } catch(err) {
+    return res.status(400).send({ error: 'Registration Failed' + err })
+  }
+}
+
+export default { register, authenticate, getAll };
