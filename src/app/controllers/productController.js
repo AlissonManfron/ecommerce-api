@@ -12,7 +12,7 @@ const getAll = async (_, res) => {
   }
 };
 
-const register = async (req,res) => {
+const create = async (req,res) => {
   const { title, description, price, productGroup, imageUrl } = req.body
 
   try{
@@ -69,4 +69,4 @@ const findByGroup = async (req, res) => {
   }
 };
 
-export default { register, findById, findByGroup, getAll };
+export default { create, findById, findByGroup, getAll };

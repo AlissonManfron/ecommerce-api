@@ -7,8 +7,8 @@ const router = express.Router();
 router.use(authMiddleware);
 
 router.get('/', productController.getAll)
-.post('/', productController.register)
-.get('/search/:id', productController.findById)
+.post('/', productController.create)
+.get('/search/id/:id', productController.findById)
 .get('/search/group/:group', productController.findByGroup);
 
 export default router;
