@@ -1,7 +1,9 @@
-import { verify } from 'jsonwebtoken';
-import { secret } from '../../config/auth';
+import "dotenv/config"
+import jwt from 'jsonwebtoken';
 
-export default (req,res, next) => {
+const { SECRET } = process.env;
+
+export default (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader)
@@ -9,7 +11,7 @@ export default (req,res, next) => {
   
   const parts = authHeader.split(' ');
 
-  if (!parts.lenth === 2)
+  if (!parts.length === 2)
     return res.status(401).send({ error: 'Token error' });
 
   const [ scheme, token ] = parts;
@@ -17,9 +19,9 @@ export default (req,res, next) => {
   if (!/^Bearer$/i.test(scheme))
     return res.status(401).send({ error: 'Token malformatted' });
 
-  verify(token, secret, (err, decoded) => {
-      if (err) res.status(401).send({ error: 'Token invalid' });
-      req.userId = decoded.params.id;
+    jwt.verify(token, SECRET, function(err, decoded) {
+      if (err) return res.status(401).send({ error: 'Token invalid' });
+      req.userEmail = decoded.params.email;
       return next();
   });
 }

@@ -1,79 +1,72 @@
-import express from 'express';
-//const authMiddleware = require('../middlewares/auth');
+import ProductDatabasePostgres from '../../database/product-database-postgres.js';
 
-const router =  express.Router();
+const database = new ProductDatabasePostgres();
 
-//router.use(authMiddleware);
-
-router.get('/', async (req,res) => {
+const getAll = async (_, res) => {
   try{
+    const products = await database.getAll();
+    
+    return res.send({ "products": products });
+  } catch(err) {
+    return res.status(400).send({ "error": true, "message": 'Get All Products Failed: ' + err });
+  }
+};
 
-      return res.send( { "error": true} );
+const register = async (req,res) => {
+  const { title, description, price, productGroup, imageUrl } = req.body
+
+  try{
+    await database.create({
+      title,
+      description,
+      price,
+      productGroup,
+      imageUrl
+    });
+
+    return res.send({ 
+      title,
+      description,
+      price,
+      productGroup,
+      imageUrl
+    });
     
   } catch(err) {
-    return res.status(400).send({ "error": true, "message": 'Error loading Products' + err });
+    return res.status(400).send({ error: true, message: 'Error while creating the product: ' + err });
   }
-});
+};
 
-router.get('/:id', async (req,res) => {
+const findById = async (req, res) => {
+  const id = req.params.id;
   try{
+    const product = await database.findById(id);
 
-    return res.send( { "error": true} );
-
-  } catch(err) {
-    return res.status(400).send({ "error": true, "message": 'Error loading Product' + err });
-  }
-});
-
-router.get('/search/:group', async (req,res) => {
-  try{
-  
-    return res.send( { "error": true} );
-
-  } catch(err) {
-    return res.status(400).send({ "error": true, "message": 'Error loading Products' + err });
-  }
-});
-
-router.get('/group/:limit', async (req,res) => {
-  try{
+    if (product) {
+      return res.send(product);
+    } else {
+      return res.status(404).send({ "error": true, "message": "Product Not Found" });
+   }
     
-    return res.send( { "error": true} );
   } catch(err) {
-    return res.status(400).send({ "error": true, "message": 'Error loading Products' + err });
+    return res.status(500).send({ error: true, message: 'Internal Server Error', details: err.message });
   }
-});
+};
 
-router.post('/', async (req,res) => {
+const findByGroup = async (req, res) => {
+  const productGroup = req.params.group;
   try{
+    const products = await database.findByGroup(productGroup);
 
-    return res.send( { "error": true} );
-
-  } catch(err) {
-    return res.status(400).send({ "error": true, "message": 'Error creating new Product : ' + err });
-  }
-});
-
-router.put('/:id', async (req,res) => {
-  try{
-
+    if (products) {
+      return res.send(products);
+    } else {
+      return res.status(404).send({ error: true, message: "Products Not Found" });
+   }
     
-    return res.send( { "error": true} );
-
   } catch(err) {
-    return res.status(400).send({ "error": true, "message": 'Error updating new Product : ' + err });
+    return res.status(500).send({ error: true, message: 'Internal Server Error', details: err.message });
   }
-});
+};
 
-router.delete('/:id', async (req,res) => {
-  try{
-
-  
-    return res.send( { "error": true} );
-
-  } catch(err) {
-    return res.status(400).send({ "error": true, "message": 'Error removing Product : ' + err });
-  }
-});
-
-export default router;
+export default { register, findById, findByGroup, getAll };
