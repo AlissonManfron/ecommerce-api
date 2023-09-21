@@ -58,7 +58,7 @@ const getRankeds = async (req, res) => {
     const products = await database.getRankeds();
 
     if (products) {
-      return res.send(products);
+      return res.send({products: products});
     } else {
       return res.status(404).send({ error: true, message: "Products Not Found" });
    }
