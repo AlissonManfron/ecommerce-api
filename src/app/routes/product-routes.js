@@ -9,6 +9,6 @@ router.use(authMiddleware);
 router.get('/', productController.getAll)
 .post('/', productController.create)
 .get('/search/id/:id', productController.findById)
-.get('/search/group/:group', productController.findByGroup);
+.get('/search/rankeds', productController.getRankeds);
 
 export default router;

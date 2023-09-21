@@ -13,23 +13,23 @@ const getAll = async (_, res) => {
 };
 
 const create = async (req,res) => {
-  const { title, description, price, productGroup, imageUrl } = req.body
+  const { title, description, price, imageUrl, category_id } = req.body
 
   try{
     await database.create({
       title,
       description,
       price,
-      productGroup,
-      imageUrl
+      imageUrl,
+      category_id
     });
 
     return res.send({ 
       title,
       description,
       price,
-      productGroup,
-      imageUrl
+      imageUrl,
+      category_id
     });
     
   } catch(err) {
@@ -53,10 +53,9 @@ const findById = async (req, res) => {
   }
 };
 
-const findByGroup = async (req, res) => {
-  const productGroup = req.params.group;
+const getRankeds = async (req, res) => {
   try{
-    const products = await database.findByGroup(productGroup);
+    const products = await database.getRankeds();
 
     if (products) {
       return res.send(products);
@@ -69,4 +68,4 @@ const findByGroup = async (req, res) => {
   }
 };
 
-export default { create, findById, findByGroup, getAll };
+export default { create, findById, getRankeds, getAll };
