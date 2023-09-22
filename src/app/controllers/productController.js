@@ -57,8 +57,22 @@ const getRankeds = async (req, res) => {
   try{
     const products = await database.getRankeds();
 
+    const productsByCategory = {};
+
+    products.forEach((product) => {
+      if (!productsByCategory[product.category_id]) {
+        productsByCategory[product.category_id] = {
+          category_name: product.category_name,
+          products: [],
+        };
+      }
+      productsByCategory[product.category_id].products.push(product);
+    });
+
+    const rankedProductsList = Object.values(productsByCategory);
+
     if (products) {
-      return res.send({products: products});
+      return res.send(rankedProductsList);
     } else {
       return res.status(404).send({ error: true, message: "Products Not Found" });
    }
