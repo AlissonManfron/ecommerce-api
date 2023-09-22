@@ -72,7 +72,7 @@ const getRankeds = async (req, res) => {
     const rankedProductsList = Object.values(productsByCategory);
 
     if (products) {
-      return res.send(rankedProductsList);
+      return res.send({rankedProducts : rankedProductsList});
     } else {
       return res.status(404).send({ error: true, message: "Products Not Found" });
    }
