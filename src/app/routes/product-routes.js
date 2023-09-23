@@ -8,6 +8,6 @@ router.use(authMiddleware);
 
 router.get('/', productController.find)
 .post('/', productController.create)
-.get('/search/rankeds', productController.getRankeds);
+.get('/rankeds', productController.rankeds);
 
 export default router;

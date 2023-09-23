@@ -27,7 +27,7 @@ const create = async (req, res) => {
   }
 };
 
-const getRankeds = async (_, res) => {
+const rankeds = async (_, res) => {
   try{
     const products = await database.getRankeds();
 
@@ -108,4 +108,4 @@ const findByCategoryId = async (req, res) => {
   }
 };
 
-export default { create, find, getRankeds };
+export default { create, find, rankeds };
