@@ -12,9 +12,19 @@ export default class ProductDatabasePostgres {
     const products = await sql`SELECT * FROM products WHERE id = ${id}`;
 
     if (products.length > 0) {
-      return products[0]
+      return products[0];
     } else {
-      return null
+      return null;
+    }
+  }
+
+  async findByCategoryId(id) {
+    const products = await sql`SELECT * FROM products WHERE category_id = ${id}`;
+
+    if (products.length > 0) {
+      return products;
+    } else {
+      return null;
     }
   }
 

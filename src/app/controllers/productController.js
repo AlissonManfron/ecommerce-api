@@ -2,17 +2,7 @@ import ProductDatabasePostgres from '../../database/product-database-postgres.js
 
 const database = new ProductDatabasePostgres();
 
-const getAll = async (_, res) => {
-  try{
-    const products = await database.getAll();
-    
-    return res.send({ "products": products });
-  } catch(err) {
-    return res.status(400).send({ "error": true, "message": 'Get All Products Failed: ' + err });
-  }
-};
-
-const create = async (req,res) => {
+const create = async (req, res) => {
   const { title, description, price, imageUrl, category_id } = req.body
 
   try{
@@ -37,23 +27,7 @@ const create = async (req,res) => {
   }
 };
 
-const findById = async (req, res) => {
-  const id = req.params.id;
-  try{
-    const product = await database.findById(id);
-
-    if (product) {
-      return res.send(product);
-    } else {
-      return res.status(404).send({ "error": true, "message": "Product Not Found" });
-   }
-    
-  } catch(err) {
-    return res.status(500).send({ error: true, message: 'Internal Server Error', details: err.message });
-  }
-};
-
-const getRankeds = async (req, res) => {
+const getRankeds = async (_, res) => {
   try{
     const products = await database.getRankeds();
 
@@ -82,4 +56,56 @@ const getRankeds = async (req, res) => {
   }
 };
 
-export default { create, findById, getRankeds, getAll };
+const find = async (req, res) => {
+  if (req.query.id) {
+    findById(req, res);
+  } else if (req.query.category) {
+    findByCategoryId(req, res);
+  } else {
+    findAll(req, res);
+  }
+};
+
+const findAll = async (req, res) => {
+  try{
+    const products = await database.getAll();
+    
+    return res.send({ "products": products });
+  } catch(err) {
+    return res.status(400).send({ "error": true, "message": 'Get All Products Failed: ' + err });
+  }
+};
+
+const findById = async (req, res) => {
+  const id = req.query.id;
+  try{
+    const product = await database.findById(id);
+
+    if (product) {
+      return res.send(product);
+    } else {
+      return res.status(404).send({ "error": true, "message": "Product Not Found" });
+   }
+    
+  } catch(err) {
+    return res.status(500).send({ error: true, message: 'Internal Server Error', details: err.message });
+  }
+};
+
+const findByCategoryId = async (req, res) => {
+  const categoryId = req.query.category;
+  try{
+    const products = await database.findByCategoryId(categoryId);
+
+    if (products) {
+      return res.send(products);
+    } else {
+      return res.status(404).send({ "error": true, "message": "Products Not Found" });
+   }
+    
+  } catch(err) {
+    return res.status(500).send({ error: true, message: 'Internal Server Error', details: err.message });
+  }
+};
+
+export default { create, find, getRankeds };

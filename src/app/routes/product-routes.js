@@ -6,9 +6,8 @@ const router = express.Router();
 
 router.use(authMiddleware);
 
-router.get('/', productController.getAll)
+router.get('/', productController.find)
 .post('/', productController.create)
-.get('/search/id/:id', productController.findById)
 .get('/search/rankeds', productController.getRankeds);
 
 export default router;
