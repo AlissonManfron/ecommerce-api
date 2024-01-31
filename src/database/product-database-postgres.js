@@ -30,38 +30,38 @@ export default class ProductDatabasePostgres {
 
   async getRankeds() {
     const products = await sql`
-    WITH ProductsWithRanks AS (
-  SELECT
-    p.id AS product_id,
-    p.title,
-    p.description,
-    p.price,
-    p.imageUrl,
-    p.category_id,
-    c.name AS category_name,
-    ROW_NUMBER() OVER (PARTITION BY p.category_id ORDER BY RANDOM()) AS product_rank
-  FROM
-    products p
-    INNER JOIN categories c ON p.category_id = c.id
-  WHERE
-    p.category_id IN (1, 2, 3, 4, 5)
-)
-SELECT
-  product_id,
-  title,
-  description,
-  price,
-  imageUrl,
-  category_id,
-  category_name
-FROM
-  ProductsWithRanks
-WHERE
-  product_rank <= 5;
+      WITH ProductsWithRanks AS (
+        SELECT
+          p.id AS product_id,
+          p.title,
+          p.description,
+          p.price,
+          p.imageUrl,
+          p.category_id,
+          c.name AS category_name,
+          ROW_NUMBER() OVER (PARTITION BY p.category_id ORDER BY RANDOM()) AS product_rank
+        FROM
+          products p
+          INNER JOIN categories c ON p.category_id = c.id
+        WHERE
+          p.category_id IN (1, 2, 3, 4, 5)
+      )
+      SELECT
+        product_id AS id,
+        title,
+        description,
+        price,
+        imageUrl,
+        category_id,
+        category_name
+      FROM
+        ProductsWithRanks
+      WHERE
+        product_rank <= 5;
     `;
-
-    return products
-  }
+  
+    return products;
+  }  
 
   async getAll() {
     return await sql`SELECT * FROM products`
