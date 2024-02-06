@@ -46,7 +46,7 @@ export default class ProductDatabasePostgres {
     }
   }
 
-  async getRankeds() {
+  async getRankeds(maxQuantity) {
     const products = await sql`
       WITH ProductsWithRanks AS (
         SELECT
@@ -75,7 +75,7 @@ export default class ProductDatabasePostgres {
       FROM
         ProductsWithRanks
       WHERE
-        product_rank <= 5;
+        product_rank <= ${maxQuantity};
     `;
   
     return products;

@@ -29,24 +29,17 @@ const create = async (req, res) => {
 
 const rankeds = async (_, res) => {
   try{
-    const products = await database.getRankeds();
+    const products = await database.getRankeds(5);
 
-    const productsByCategory = {};
+    const productsBanner = await database.getRankeds(1);
 
-    products.forEach((product) => {
-      if (!productsByCategory[product.category_id]) {
-        productsByCategory[product.category_id] = {
-          category_name: product.category_name,
-          products: [],
-        };
-      }
-      productsByCategory[product.category_id].products.push(product);
-    });
-
-    const rankedProductsList = Object.values(productsByCategory);
+   
 
     if (products) {
-      return res.send({rankedProducts : rankedProductsList});
+      return res.send({
+        bannerProducts: getRankProductsByCategory(productsBanner),
+        rankedProducts : getRankProductsByCategory(products)
+      });
     } else {
       return res.status(404).send({ error: true, message: "Products Not Found" });
    }
@@ -55,6 +48,24 @@ const rankeds = async (_, res) => {
     return res.status(500).send({ error: true, message: 'Internal Server Error', details: err.message });
   }
 };
+
+function getRankProductsByCategory(products) {
+  const productsByCategory = {};
+
+  products.forEach((product) => {
+    if (!productsByCategory[product.category_id]) {
+      productsByCategory[product.category_id] = {
+        category_name: product.category_name,
+        products: [],
+      };
+    }
+    productsByCategory[product.category_id].products.push(product);
+  });
+
+  const rankedProductsList = Object.values(productsByCategory);
+
+  return rankedProductsList;
+}
 
 const find = async (req, res) => {
   if (req.query.id) {
